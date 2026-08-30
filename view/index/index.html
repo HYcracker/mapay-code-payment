@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="码支付 - 领先的免签约聚合支付平台，为个人与企业提供安全、快捷、低费率的扫码支付接口。资金直达账户，专注交易体验。">
+    <meta name="keywords" content="码支付,免签约支付,聚合支付,扫码支付,API接口">
+    <title>码支付 | 安全免签收款 · 聚合支付接口平台</title>
+    <!-- 预连接 & 字体优化 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 (免费图标库) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fafbfe;
+            color: #1e293b;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* 容器通用 */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* 头部导航 - 现代玻璃质感 */
+        #topnav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            padding: 16px 0;
+            background: transparent;
+        }
+
+        #topnav.nav-sticky {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.05);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .top-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu, .log-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu li, .log-menu li {
+            display: flex;
+            align-items: center;
+        }
+
+        .mlogo img {
+            height: 48px;
+            transition: transform 0.2s;
+        }
+        .mlogo img:hover {
+            transform: scale(1.02);
+        }
+
+        .nav-menu li a, .log-menu li a {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 18px;
+            color: #1f2937;
+            transition: 0.25s;
+            border-radius: 40px;
+            letter-spacing: -0.2px;
+        }
+
+        .nav-menu li:first-child a {
+            padding-left: 0;
+        }
+
+        .nav-menu li a:hover {
+            color: #3b82f6;
+            background: rgba(59,130,246,0.08);
+        }
+
+        .log-menu li a {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            padding: 8px 20px;
+            font-weight: 600;
+        }
+
+        .log-menu li a:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+        }
+
+        /* 按钮通用 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 48px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: #1e293b;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .btn-primary:hover {
+            background: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            color: #1e293b;
+        }
+        .btn-outline:hover {
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Hero 区域现代风格 */
+        .hero-section {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 140px 0 80px;
+            position: relative;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            overflow: hidden;
+        }
+        .hero-grid {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+        .hero-content {
+            flex: 1;
+        }
+        .hero-badge {
+            background: rgba(59,130,246,0.12);
+            color: #2563eb;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(to right, #0f172a, #1e293b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 24px;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 32px;
+            max-width: 90%;
+        }
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        .hero-image img {
+            max-width: 100%;
+            width: 480px;
+            filter: drop-shadow(0 20px 25px -12px rgba(0,0,0,0.1));
+        }
+
+        /* Section 公用 */
+        .section {
+            padding: 100px 0;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        .section-title h4 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #0f172a;
+        }
+        .section-title p {
+            font-size: 1.1rem;
+            color: #5b6e8c;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 特性卡片 - 细腻悬浮 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 32px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 32px;
+            padding: 32px 24px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #eef2ff;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: #d9e6ff;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+        }
+        .feature-icon {
+            font-size: 2.8rem;
+            color: #3b82f6;
+            margin-bottom: 24px;
+        }
+        .feature-card h5 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .feature-card p {
+            color: #5b6e8c;
+            line-height: 1.5;
+        }
+
+        /* 额外信任感横幅 */
+        .trust-bar {
+            background: #ffffff;
+            border-radius: 60px;
+            padding: 20px 28px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            border: 1px solid #edf2f7;
+            margin-top: 40px;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            color: #1f2a44;
+        }
+        .trust-item i {
+            font-size: 1.8rem;
+            color: #3b82f6;
+        }
+
+        /* 底部 footer 全新设计 */
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 48px 0 32px;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            margin-top: 40px;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .footer-links a:hover {
+            color: white;
+        }
+        .copyright {
+            text-align: center;
+            font-size: 0.85rem;
+            border-top: 1px solid #1e293b;
+            padding-top: 28px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 991px) {
+            .container {
+                padding: 0 24px;
+            }
+            .hero-content h1 {
+                font-size: 2.6rem;
+            }
+            .nav-menu li:not(:first-child) {
+                display: none;
+            }
+            .log-menu {
+                display: flex;
+            }
+            .hero-section {
+                padding-top: 100px;
+            }
+            .hero-grid {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+            .hero-content p {
+                max-width: 100%;
+            }
+            .btn-group {
+                justify-content: center;
+            }
+            .trust-bar {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+                border-radius: 32px;
+            }
+        }
+        @media (max-width: 640px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            .section {
+                padding: 64px 0;
+            }
+            .feature-card {
+                padding: 28px 20px;
+            }
+        }
+        .sep {
+            margin: 0 8px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<header id="topnav" class="defaultscroll">
+    <div class="container">
+        <div class="top-head">
+            <ul class="nav-menu">
+                <li class="mlogo">
+                    <a href="/">
+                        <img src="/static/img/logo1.png" alt="码支付logo" style="height: 48px;">
+                    </a>
+                </li>
+                <li><a href="/">首页</a></li>
+                <li><a href="/doc.html" target="_blank">开发文档</a></li>
+                <li><a href="#features">特性</a></li>
+                <li><a href="#pricing" style="display: none;">定价</a></li>
+            </ul>
+            <ul class="log-menu">
+                <?php if(isset($nickname)){ ?>
+                <li><a href="/" class="a-head-btn"><i class="fas fa-user-circle"></i> <?php echo $nickname ?></a></li>
+                <?php }else{ ?>
+                <li><a href="/User/login" class="a-head-btn"><i class="fas fa-sign-in-alt"></i> 登录</a></li>
+                <li><a href="/" class="a-head-btn"><i class="fas fa-user-plus"></i> 注册</a></li>
+                <?php } ?>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<!-- Hero 全新设计 -->
+<section class="hero-section" id="home">
+    <div class="container">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-bolt"></i> 免签约 · 即时到账
+                </div>
+                <h1>码支付 <span style="background: linear-gradient(135deg,#2563eb,#4f46e5); -webkit-background-clip:text; background-clip:text; color:transparent;">聚合免签</span><br>收款从未如此简单</h1>
+                <p>基于易支付接口开发的免签收款工具，资金直达个人账户，不参与结算，安全透明。为个人开发者与中小企业提供极速接入体验。</p>
+                <div class="btn-group">
+                    <a href="/User/login" class="btn btn-primary"><i class="fas fa-rocket"></i> 快速开始</a>
+                    <a href="/doc.html" class="btn btn-outline" target="_blank"><i class="fas fa-book-open"></i> 官方文档</a>
+                </div>
+                <!-- 信任微标 -->
+                <div class="trust-bar" style="margin-top: 48px;">
+                    <div class="trust-item"><i class="fas fa-shield-alt"></i> <span>银行级加密</span></div>
+                    <div class="trust-item"><i class="fas fa-clock"></i> <span>7x24h 交易稳定</span></div>
+                    <div class="trust-item"><i class="fas fa-hand-holding-usd"></i> <span>资金不过夜</span></div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="/static/img/support-team.svg" alt="支付插图" onerror="this.src='https://placehold.co/500x400/eef2ff/3b82f6?text=Payment+Gateway'">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 特性区块，更精致 -->
+<section class="section" id="features">
+    <div class="container">
+        <div class="section-title">
+            <h4>为什么选择我们</h4>
+            <p>稳定、高效、免签约，重新定义个人支付体验</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                <h5>接口安全</h5>
+                <p>国内高性能服务器集群，数据传输全程加密，抗DDoS攻击，订单毫秒级响应，保障每笔交易安全无虞。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <h5>资金保障</h5>
+                <p>商户订单信息多重加密备份，运维团队实时监控，账户资金流水透明可查，安全等级达金融标准。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-code"></i></div>
+                <h5>REST API</h5>
+                <p>强大开放接口，支持主流语言SDK，轻松集成至网站、APP或小程序，实现全平台支付能力。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-percent"></i></div>
+                <h5>费率超低</h5>
+                <p>资金直达个人账户，无中间商差价，提供行业最具竞争力的费率，长期合作更享专属优惠。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
+                <h5>拒绝资金池</h5>
+                <p>我们不触碰商户资金，交易资金全部由支付渠道官方结算至您绑定的银行卡/支付宝/微信，合规透明。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                <h5>专属客服</h5>
+                <p>一对一技术支持，7×24小时快速响应，从接入到上线全程陪伴，疑难杂症极速解答。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 数据统计区域/ 简洁但精美展示价值 -->
+<section style="background: linear-gradient(120deg, #ffffff 0%, #f1f5f9 100%); padding: 60px 0;">
+    <div class="container">
+        <div class="features-grid" style="gap: 24px; grid-template-columns: repeat(auto-fit, minmax(200px,1fr));">
+            <div class="feature-card" style="text-align: center; background: rgba(255,255,255,0.7); backdrop-filter: blur(2px);">
+                <i class="fas fa-clock" style="font-size: 2.2rem; color: #2563eb;"></i>
+                <h3 style="font-size: 2rem; font-weight: 800; margin: 12px 0 4px;">0.5s</h3>
+                <p>平均回调速度</p>
+            </div>
+            <div class="feature-card" style="text-align: center;">
+                <i class="fas fa-chart-line" style="font-size: 2.2rem; color: #2563eb;"></i>
+                <h3 style="font-size: 2rem; font-weight: 800; margin: 12px 0 4px;">99.99%</h3>
+                <p>可用性SLA</p>
+            </div>
+            <div class="feature-card" style="text-align: center;">
+                <i class="fas fa-users" style="font-size: 2.2rem; color: #2563eb;"></i>
+                <h3 style="font-size: 2rem; font-weight: 800; margin: 12px 0 4px;">10w+</h3>
+                <p>企业&个人用户</p>
+            </div>
+            <div class="feature-card" style="text-align: center;">
+                <i class="fas fa-credit-card" style="font-size: 2.2rem; color: #2563eb;"></i>
+                <h3 style="font-size: 2rem; font-weight: 800; margin: 12px 0 4px;">全渠道</h3>
+                <p>微信/支付宝/云闪付</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 简易CTA 加强转化 -->
+<section style="padding: 60px 0 80px;">
+    <div class="container">
+        <div style="background: linear-gradient(145deg, #0f172a, #111827); border-radius: 64px; padding: 56px 40px; text-align: center; color: white;">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 16px;">即刻接入，开启便捷收款之旅</h2>
+            <p style="color: #cbd5e1; max-width: 550px; margin: 0 auto 32px;">无需企业资质，个人开发者同样轻松接入，享受专业级支付能力</p>
+            <div class="btn-group" style="justify-content: center;">
+                <a href="/User/login" class="btn" style="background: white; color: #0f172a; font-weight: 700;"><i class="fas fa-arrow-right"></i> 免费注册</a>
+                <a href="https://www.yuque.com/mick-hanyi/aao0qc/nggusxbu378ke3yy?singleDoc# 《联系我们》" target="_blank" class="btn" style="background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color: white;"><i class="fas fa-comment-dots"></i> 联系客服</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 底部区域优化 -->
+<footer>
+    <div class="container">
+        <div class="footer-links">
+            <a href="/">首页</a>
+            <a href="/doc.html" target="_blank">开发文档</a>
+            <a href="javascript:void(0);">API状态</a>
+            <a href="javascript:void(0);">服务协议</a>
+            <a href="javascript:void(0);">隐私政策</a>
+            <div style="display: flex; gap: 8px;">
+                <span style="color:#5b6e8c;">友情链接：</span>
+                <a target="_blank" href="https://www.shouqianba.com/">收钱吧</a>
+                <a target="_blank" href="https://customer.lakala.com/">拉卡拉</a>
+                <a target="_blank" href="https://xym.ysepay.com/">小Y经营</a>
+                <a target="_blank" href="https://b.shengpay.com/">盛付通</a>
+                <a target="_blank" href="https://m.hkrt.cn/">码钱</a>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright © <script>document.write(new Date().getFullYear());</script> <strong>码支付</strong> — 专业免签聚合接口平台 | 资金由官方渠道结算，安全合规 <span class="sep">|</span> <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer nofollow" style="color:#94a3b8;">京ICP备********号</a></p>
+            <p style="margin-top: 12px; font-size: 0.75rem;">本平台仅提供技术对接，不触碰资金，让收款更简单。</p>
+        </div>
+    </div>
+</footer>
+
+<!-- 滚动黏贴效果 + 平滑滚动 -->
+<script>
+    // 滚动固定头部
+    window.onscroll = function() {
+        scrollFunction();
+    };
+    function scrollFunction() {
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        var topnav = document.getElementById("topnav");
+        if (scrollTop > 60) {
+            topnav.classList.add("nav-sticky");
+        } else {
+            topnav.classList.remove("nav-sticky");
+        }
+    }
+    // 初始调用一次
+    scrollFunction();
+
+    // 平滑锚点点击（给特性链接增加体验）
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === "#" || targetId === "") return;
+            const targetElem = document.querySelector(targetId);
+            if (targetElem) {
+                e.preventDefault();
+                targetElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    // 处理移动端菜单显示的问题（保持原有业务不变，仅提供简洁提示）
+    // 若需要移动端导航可拓展，但保持干净，不破坏原有php会话逻辑
+    // 确保继承原有 PHP 变量昵称展示
+</script>
+</body>
+</html>

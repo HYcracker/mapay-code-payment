@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>收银台</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI","Microsoft YaHei",Arial,sans-serif;background:#f5f7fb;color:#172033;display:grid;place-items:center;padding:24px}.cashier{width:min(480px,100%);background:#fff;border:1px solid #dfe5ef;border-radius:8px;padding:24px;box-shadow:0 16px 42px rgba(20,31,52,.08)}h1{font-size:24px;margin:0 0 8px}.muted{color:#697386}.amount{font-size:44px;font-weight:800;margin:18px 0}.qr{border:1px dashed #b8c3d6;border-radius:8px;padding:16px;display:grid;place-items:center;min-height:220px;background:#f8fafc}.qr img{max-width:100%;max-height:320px}.qr a{color:#1473e6;word-break:break-all}.row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #edf1f7;padding:12px 0}.ok{display:none;text-align:center}.ok strong{font-size:28px;color:#15a36c}.actions{display:flex;gap:10px;margin-top:18px}button,a.btn{border:0;background:#1473e6;color:white;border-radius:6px;padding:11px 14px;cursor:pointer;text-decoration:none;text-align:center;flex:1;font-weight:650}.ghost{background:#e8eef7!important;color:#233149!important}
+  </style>
+</head>
+<body>
+  <main class="cashier" th:attr="data-order=${order.orderId}">
+    <section id="paying">
+      <h1>订单收银台</h1>
+      <p class="muted" th:text="${order.name}">商品名称</p>
+      <div class="amount">¥<span th:text="${order.reallyPrice}">0.00</span></div>
+      <div class="qr">
+        <img th:if="${channel.type == 'image'}" th:src="${channel.qrcode}" alt="收款码">
+        <a th:if="${channel.type != 'image'}" th:href="${channel.qrcode}" th:text="${channel.qrcode}" target="_blank">支付链接</a>
+      </div>
+      <div class="row"><span>平台订单</span><strong th:text="${order.orderId}"></strong></div>
+      <div class="row"><span>商户订单</span><span th:text="${order.outTradeNo}"></span></div>
+      <div class="row"><span>支付方式</span><span th:text="${order.type}"></span></div>
+      <div class="row"><span>剩余时间</span><span id="timer" th:text="${passTime}"></span></div>
+      <div class="actions">
+        <button id="paidBtn">我已付款</button>
+        <a class="btn ghost" href="/">返回后台</a>
+      </div>
+    </section>
+    <section id="paid" class="ok">
+      <strong>支付成功</strong>
+      <p class="muted">订单已确认，正在跳转。</p>
+      <a id="returnLink" class="btn" href="/">返回</a>
+    </section>
+  </main>
+  <script>
+    const root = document.querySelector('.cashier');
+    const orderId = root.dataset.order;
+    const timer = document.querySelector('#timer');
+    let left = Number(timer.textContent || 0);
+    setInterval(() => { if (left > 0) timer.textContent = --left + ' 秒'; }, 1000);
+    async function poll() {
+      const res = await fetch('/getOrderState/' + orderId);
+      const data = await res.json();
+      if (data.state === 1) {
+        document.querySelector('#paying').style.display = 'none';
+        document.querySelector('#paid').style.display = 'block';
+        if (data.return_url) document.querySelector('#returnLink').href = data.return_url;
+        if (data.return_url) setTimeout(() => location.href = data.return_url, 1200);
+      }
+    }
+    document.querySelector('#paidBtn').addEventListener('click', async () => {
+      const list = await fetch('/api/order/getOrders?limit=1').then(r => r.json());
+      const item = (list.data || []).find(o => o.orderId === orderId);
+      if (item) await fetch('/api/order/doPayOrder', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,state:1,platform_order:'manual'})});
+      poll();
+    });
+    setInterval(poll, 2500);
+  </script>
+</body>
+</html>

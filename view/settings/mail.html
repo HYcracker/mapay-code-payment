@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>邮件提醒</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/component/pear/css/pear.css" />
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .mail-page {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .layui-card {
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(18, 38, 63, .06);
+        }
+
+        .layui-card-header {
+            font-weight: 600;
+        }
+
+        .status-line {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px;
+            padding: 7px 0;
+            line-height: 1.7;
+        }
+
+        .status-label {
+            color: #7a8499;
+            text-align: right;
+        }
+
+        .status-value {
+            word-break: break-all;
+        }
+
+        .mail-actions {
+            position: sticky;
+            bottom: 0;
+            background: rgba(245, 247, 251, .92);
+            border-top: 1px solid #edf0f7;
+            padding: 14px 0 4px;
+            backdrop-filter: blur(8px);
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            .status-line {
+                grid-template-columns: 1fr;
+                gap: 2px;
+            }
+
+            .status-label {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body class="pear-container">
+    <div class="mail-page">
+        <form class="layui-form layui-form-pane" lay-filter="mail-form">
+            <div class="layui-card">
+                <div class="layui-card-header">新订单邮件提醒</div>
+                <div class="layui-card-body">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">功能开关</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" name="enabled" value="1" lay-skin="switch" lay-text="开启|关闭">
+                        </div>
+                    </div>
+
+                    <div class="layui-row layui-col-space16">
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">邮箱类型</label>
+                                <div class="layui-input-block">
+                                    <select name="type" lay-filter="mail-type">
+                                        <option value="qq">QQ 邮箱</option>
+                                        <option value="163">网易 163</option>
+                                        <option value="126">网易 126</option>
+                                        <option value="gmail">Gmail</option>
+                                        <option value="outlook">Outlook</option>
+                                        <option value="custom">自定义 SMTP</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md5">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">SMTP 地址</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="host" autocomplete="off" class="layui-input" placeholder="常见邮箱可留空">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">端口</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="port" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-row layui-col-space16">
+                        <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">发件账号</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="username" autocomplete="off" class="layui-input" placeholder="example@qq.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">授权码</label>
+                                <div class="layui-input-block">
+                                    <input type="password" name="password" autocomplete="new-password" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-row layui-col-space16">
+                        <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">发件邮箱</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="from" autocomplete="off" class="layui-input" placeholder="留空使用发件账号">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">发件名称</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="from_name" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">收件邮箱</label>
+                        <div class="layui-input-block">
+                            <textarea name="to_emails" class="layui-textarea" placeholder="多个邮箱可用逗号、分号、空格或换行分隔"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="layui-row layui-col-space16">
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item" pane>
+                                <label class="layui-form-label">SMTP 认证</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" name="auth" value="1" lay-skin="switch" lay-text="开启|关闭">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item" pane>
+                                <label class="layui-form-label">SSL</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" name="ssl" value="1" lay-skin="switch" lay-text="开启|关闭">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item" pane>
+                                <label class="layui-form-label">STARTTLS</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" name="starttls" value="1" lay-skin="switch" lay-text="开启|关闭">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-row layui-col-space16">
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">连接超时</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="connection_timeout" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">读取超时</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="timeout" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">写入超时</label>
+                                <div class="layui-input-block">
+                                    <input type="number" name="write_timeout" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标题前缀</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="subject_prefix" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-card">
+                <div class="layui-card-header">最近发送日志</div>
+                <div class="layui-card-body">
+                    <div class="status-line">
+                        <div class="status-label">状态</div>
+                        <div class="status-value" id="last-status">-</div>
+                    </div>
+                    <div class="status-line">
+                        <div class="status-label">时间</div>
+                        <div class="status-value" id="last-time">-</div>
+                    </div>
+                    <div class="status-line">
+                        <div class="status-label">日志</div>
+                        <div class="status-value" id="last-message">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mail-actions">
+                <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit lay-filter="mail-save">
+                    <i class="layui-icon layui-icon-ok"></i>
+                    保存配置
+                </button>
+                <button type="button" class="pear-btn pear-btn-warming pear-btn-sm" id="test-mail">
+                    <i class="layui-icon layui-icon-email"></i>
+                    发送测试邮件
+                </button>
+                <button type="button" class="pear-btn pear-btn-sm" id="reload-mail">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    刷新
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="/component/layui/layui.js"></script>
+    <script src="/component/pear/pear.js"></script>
+    <script>
+        layui.use(['form', 'layer'], function () {
+            const form = layui.form;
+            const layer = layui.layer;
+
+            const defaults = {
+                enabled: 0,
+                type: 'custom',
+                host: '',
+                port: 465,
+                username: '',
+                password: '',
+                from: '',
+                from_name: 'Mpay',
+                to_emails: '',
+                auth: 1,
+                ssl: 1,
+                starttls: 0,
+                connection_timeout: 10000,
+                timeout: 10000,
+                write_timeout: 10000,
+                subject_prefix: 'Mpay 新订单提醒'
+            };
+
+            async function request(url, options) {
+                const res = await fetch(url, options || {});
+                if (!res.ok) {
+                    throw new Error('请求失败：' + res.status);
+                }
+                const data = await res.json();
+                if (data.code !== 0) {
+                    throw new Error(data.msg || '操作失败');
+                }
+                return data.data;
+            }
+
+            function normalize(data) {
+                return Object.assign({}, defaults, data || {});
+            }
+
+            function fillLog(data) {
+                const status = data.last_send_status || '';
+                document.getElementById('last-status').innerHTML = status === 'success'
+                    ? '<span class="layui-badge layui-bg-green">发送成功</span>'
+                    : status === 'fail'
+                        ? '<span class="layui-badge">发送失败</span>'
+                        : '-';
+                document.getElementById('last-time').innerText = data.last_send_time || '-';
+                document.getElementById('last-message').innerText = data.last_send_message || '-';
+            }
+
+            async function loadConfig() {
+                const data = normalize(await request('/api/Settings/mail'));
+                form.val('mail-form', data);
+                form.render();
+                fillLog(data);
+            }
+
+            function payload(field) {
+                return Object.assign({}, field, {
+                    enabled: field.enabled ? 1 : 0,
+                    auth: field.auth ? 1 : 0,
+                    ssl: field.ssl ? 1 : 0,
+                    starttls: field.starttls ? 1 : 0,
+                    port: Number(field.port || 465),
+                    connection_timeout: Number(field.connection_timeout || 10000),
+                    timeout: Number(field.timeout || 10000),
+                    write_timeout: Number(field.write_timeout || 10000)
+                });
+            }
+
+            form.on('submit(mail-save)', function (obj) {
+                (async () => {
+                    const load = layer.load(2);
+                    try {
+                        const data = await request('/api/Settings/mail', {
+                            method: 'post',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload(obj.field))
+                        });
+                        layer.msg('保存成功', { icon: 1, time: 1200 });
+                        fillLog(normalize(data));
+                    } catch (e) {
+                        layer.msg(e.message, { icon: 2, time: 1800 });
+                    } finally {
+                        layer.close(load);
+                    }
+                })();
+                return false;
+            });
+
+            document.getElementById('test-mail').addEventListener('click', function () {
+                (async () => {
+                    const load = layer.load(2);
+                    try {
+                        await request('/api/Settings/mail/test', { method: 'post' });
+                        layer.msg('测试邮件已执行', { icon: 1, time: 1200 });
+                        await loadConfig();
+                    } catch (e) {
+                        layer.msg(e.message, { icon: 2, time: 1800 });
+                    } finally {
+                        layer.close(load);
+                    }
+                })();
+            });
+
+            document.getElementById('reload-mail').addEventListener('click', function () {
+                loadConfig().catch(e => layer.msg(e.message, { icon: 2, time: 1800 }));
+            });
+
+            form.on('select(mail-type)', function (obj) {
+                const presets = {
+                    qq: { port: 465, ssl: 1, starttls: 0 },
+                    163: { port: 465, ssl: 1, starttls: 0 },
+                    126: { port: 465, ssl: 1, starttls: 0 },
+                    gmail: { port: 587, ssl: 0, starttls: 1 },
+                    outlook: { port: 587, ssl: 0, starttls: 1 },
+                    custom: {}
+                };
+                const current = form.val('mail-form');
+                form.val('mail-form', Object.assign(current, presets[obj.value] || {}));
+                form.render();
+            });
+
+            loadConfig().catch(e => layer.msg(e.message, { icon: 2, time: 1800 }));
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>安全收银台 | 极速支付</title>
+    <!-- 引入 Pear Admin 样式 -->
+    <link rel="stylesheet" href="/component/pear/css/pear.css" />
+    <!-- 引入 Font Awesome 6 免费图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e9eef4 100%);
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        /* 主容器优化 */
+        .layui-container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* 卡片现代风格 */
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(0px);
+            border-radius: 36px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 20px;
+            padding: 28px 24px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card:first-child {
+            padding: 20px 24px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 48px;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
+        }
+
+        /* 头部品牌区 */
+        .pay-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #4375ff 0%, #2b5be3 100%);
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 14px -6px rgba(67,117,255,0.3);
+        }
+        .brand-icon i {
+            font-size: 26px;
+            color: white;
+        }
+        .pay-type-badge {
+            background: #f0f4fe;
+            border-radius: 60px;
+            padding: 6px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #1e2f5e;
+        }
+        .pay-type-badge img {
+            height: 28px;
+            width: auto;
+            border-radius: 6px;
+        }
+
+        /* 订单信息卡片风格 */
+        .order-info {
+            background: #fafcff;
+            border-radius: 28px;
+            padding: 12px 20px;
+            margin: 8px 0 16px;
+            border: 1px solid #eef2f9;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e9edf4;
+            font-size: 15px;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #7c7f8c;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .info-value {
+            color: #1f2a48;
+            font-weight: 600;
+            word-break: break-all;
+            text-align: right;
+            max-width: 65%;
+        }
+
+        /* 价格突出 */
+        .price-section {
+            text-align: center;
+            margin: 18px 0 10px;
+            padding: 6px 0;
+        }
+        .price-amount {
+            font-size: 54px;
+            font-weight: 800;
+            color: #1e2f5e;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+        .price-amount small {
+            font-size: 24px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        .price-unit {
+            font-size: 18px;
+            font-weight: 500;
+            color: #5b6e8c;
+            margin-left: 6px;
+        }
+
+        /* 二维码容器 - 更大更醒目 */
+        .qrcode-wrapper {
+            background: white;
+            border-radius: 40px;
+            padding: 20px;
+            margin: 16px 0 20px;
+            text-align: center;
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+        }
+        /* 二维码图片尺寸调大：宽度260px，高度自适应保持比例 */
+        .qrcode-wrapper img {
+            width: 260px;
+            height: 260px;
+            object-fit: contain;
+            border-radius: 28px;
+            background: #fff;
+            transition: transform 0.2s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .qrcode-wrapper img:hover {
+            transform: scale(1.02);
+        }
+        /* 针对移动端适当缩小一点但仍比原来大 */
+        @media (max-width: 520px) {
+            .qrcode-wrapper img {
+                width: 230px;
+                height: 230px;
+            }
+        }
+        @media (max-width: 420px) {
+            .qrcode-wrapper img {
+                width: 210px;
+                height: 210px;
+            }
+        }
+
+        /* 按钮 新拟态 */
+        .pay-btn {
+            background: linear-gradient(95deg, #386cfa, #2b5be3);
+            border: none;
+            padding: 14px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 60px;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 18px -6px rgba(56,108,250,0.4);
+            margin: 12px 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .pay-btn i {
+            font-size: 22px;
+        }
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(95deg, #2f5de8, #1e48c4);
+            box-shadow: 0 12px 22px -8px rgba(56,108,250,0.5);
+        }
+        .pay-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* 消息区块 */
+        .msg-tips {
+            background: #fff7e5;
+            border-radius: 28px;
+            padding: 16px 18px;
+            margin: 20px 0 10px;
+            border-left: 5px solid #ffb347;
+        }
+        .msg-tips p {
+            margin: 8px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a3b1c;
+        }
+        .msg-tips .note-highlight {
+            color: #e67e22;
+            font-weight: 800;
+            font-size: 20px;
+            margin: 0 4px;
+        }
+
+        /* 客服提示卡片 - 非弹窗醒目设计 */
+        .customer-service-card {
+            background: linear-gradient(115deg, #eef5ff 0%, #e9f0fe 100%);
+            border-radius: 28px;
+            padding: 14px 18px;
+            margin: 18px 0 12px;
+            border: 1px solid rgba(56, 108, 250, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+        .service-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .service-text i {
+            font-size: 28px;
+            color: #386cfa;
+            background: white;
+            border-radius: 50%;
+            padding: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .service-text .title {
+            font-weight: 800;
+            font-size: 16px;
+            color: #1e2f5e;
+        }
+        .service-text .desc {
+            font-size: 14px;
+            color: #2c3e66;
+            font-weight: 500;
+        }
+        .wechat-copy {
+            background: white;
+            padding: 8px 18px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #386cfa;
+            border: 1px solid #cddeff;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .wechat-copy i {
+            font-size: 20px;
+        }
+        .wechat-copy:hover {
+            background: #386cfa;
+            color: white;
+            border-color: #386cfa;
+            transform: translateY(-1px);
+        }
+        .wechat-copy:active {
+            transform: scale(0.97);
+        }
+        .small-note {
+            font-size: 11px;
+            color: #6682a4;
+            margin-top: 4px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .timer-area {
+            background: #f1f4f9;
+            border-radius: 40px;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+            color: #2c3e66;
+            margin-top: 12px;
+        }
+        .timer-area i {
+            margin-right: 8px;
+            color: #e67e22;
+        }
+        .expired-warning {
+            color: #e6553e;
+            background: #ffe9e6;
+            border-radius: 40px;
+            padding: 12px;
+        }
+
+        /* 辅助底部 */
+        .footer-note {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 12px;
+            color: #8a99b4;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+        .footer-note span i {
+            margin-right: 5px;
+        }
+
+        button.layui-btn {
+            font-family: inherit;
+        }
+        .layui-layer-msg {
+            border-radius: 30px !important;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="layui-container">
+    <!-- 头部品牌卡片 -->
+    <div class="layui-row">
+        <div class="card" style="padding-bottom: 18px;padding-top: 15px;">
+            <div class="pay-header">
+                <div class="brand-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="pay-type-badge" id="payTypeBadge">
+                    <img id="payTypeImg" src="" alt="" style="height:28px; margin-right: 6px;">
+                    <span id="payTypeTextShort">安全支付</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 主支付卡片 -->
+    <div class="layui-row">
+        <div class="card">
+            <!-- 订单详情 美化 -->
+            <div class="order-info">
+                <div class="info-row">
+                    <span class="info-label"><i class="far fa-clock"></i> 商户订单号</span>
+                    <span class="info-value" id="orderDisplay"><?php echo htmlentities($out_trade_no); ?></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-tag"></i> 商品名称</span>
+                    <span class="info-value" id="goods_name_display"><?php echo htmlentities($name); ?></span>
+                </div>
+            </div>
+
+            <!-- 金额区域 -->
+            <div class="price-section">
+                <span class="price-amount"><span id="moneyAmount"><?php echo htmlentities($really_price); ?></span><small>.</small><span class="price-unit">元</span></span>
+            </div>
+
+            <!-- 二维码区域 - 尺寸已加大 -->
+            <div class="qrcode-wrapper">
+                <img id="qrcode" src="/static/img/loading.gif" alt="支付二维码">
+            </div>
+
+            <!-- 动态按钮 (仅手机浏览器显示) -->
+            <div style="margin: 8px auto; display: none;" id="openAppWrapper">
+                <button id="openApp" class="pay-btn">
+                    <i class="fab fa-alipay"></i> 打开支付应用
+                </button>
+            </div>
+
+            <!-- 客服提示区域：非弹窗，页面内嵌，支付成功未发货请联系客服 -->
+            <div class="customer-service-card" id="customerServiceBlock">
+                <div class="service-text">
+                    <i class="fab fa-weixin"></i>
+                    <div>
+                        <div class="title">支付保障 · 专属客服</div>
+                        <div class="desc">若支付成功未收到发货 / 有任何疑问</div>
+                    </div>
+                </div>
+                <div class="wechat-copy" id="copyWechatBtn">
+                    <i class="fab fa-weixin"></i> hanyi20240
+                    <i class="fas fa-copy" style="font-size: 14px;"></i>
+                </div>
+                <div class="small-note">点击微信号即可复制，添加客服快速处理</div>
+            </div>
+
+            <!-- 提示消息区域 -->
+            <div class="msg-tips">
+                <p><i class="fas fa-exclamation-circle"></i> 请支付 <strong class="note-highlight" id="payNoteAmount"><?php echo htmlentities($really_price); ?></strong> 元，金额需精确</p>
+                <p><i class="fas fa-hourglass-half"></i> 付款后请等待 <strong>3-5秒</strong> 自动跳转，请勿重复支付</p>
+            </div>
+
+            <!-- 倒计时&状态区域 -->
+            <div id="divTime" class="timer-area">
+                <i class="far fa-hourglass"></i> 加载订单信息...
+            </div>
+
+            <!-- 支付方式文本提示 -->
+            <div class="footer-note">
+                <span><i class="fas fa-lock"></i> 加密传输</span>
+                <span id="payTypeFooterText"><i class="fas fa-qrcode"></i> 扫码支付</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 原有脚本依赖 -->
+<script src="/component/layui/layui.js"></script>
+<script src="/static/js/awesome-qr.min.js"></script>
+<script>
+    // 全局变量
+    const QR = AwesomeQR.AwesomeQR;
+    let environment = detectBrowserEnvironment();
+    const payCode = '<?php echo $payUrl; ?>';
+    const codeType = '<?php echo htmlentities($code_type); ?>';
+    const payType = '<?php echo htmlentities($type); ?>';
+    const order = '<?php echo htmlentities($order_id); ?>';
+    const payclient = '<?php echo htmlentities($payclient ?? ""); ?>';
+
+    // 环境检测函数
+    function detectBrowserEnvironment() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        let environment = 'other';
+        if (userAgent.includes('micromessenger')) {
+            if (userAgent.includes('miniprogram')) {
+                environment = 'wxapp';
+            } else if (userAgent.includes('android') || userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                environment = 'wxphone';
+            } else {
+                environment = 'wxpc';
+            }
+        } else if (userAgent.includes('aliapp') || userAgent.includes('alipayclient')) {
+            if (userAgent.includes('android') || userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                environment = 'aliphone';
+            } else {
+                environment = 'alipc';
+            }
+        } else if (userAgent.includes('android') || userAgent.includes('iphone') || userAgent.includes('ipad')) {
+            if (!userAgent.includes('micromessenger') && !userAgent.includes('aliapp') && !userAgent.includes('qq')) {
+                environment = 'phone';
+            }
+        } else {
+            environment = 'pc';
+        }
+        return environment;
+    }
+
+    // 重设环境变量
+    environment = detectBrowserEnvironment();
+    // 支付宝环境跳转 (保留原有逻辑)
+    if (payclient == 'Alipayf' && environment == 'aliphone') {
+        window.location.href = payCode;
+    }
+
+    // DOM 元素
+    const payTypeImg = document.getElementById('payTypeImg');
+    const payTypeTextShort = document.getElementById('payTypeTextShort');
+    const payTypeFooterText = document.getElementById('payTypeFooterText');
+    const payNoteAmount = document.getElementById('payNoteAmount');
+
+    // 设置支付类型展示样式
+    function setPayTypeUI() {
+        if (payType === 'wxpay') {
+            payTypeImg.src = '/static/img/weixin.jpg';
+            payTypeTextShort.innerText = '微信支付';
+            payTypeFooterText.innerHTML = '<i class="fab fa-weixin"></i> 微信安全支付';
+        } else if (payType === 'alipay') {
+            payTypeImg.src = '/static/img/alipay.jpg';
+            payTypeTextShort.innerText = '支付宝支付';
+            payTypeFooterText.innerHTML = '<i class="fab fa-alipay"></i> 支付宝担保交易';
+        } else if (payType === 'unionpay') {
+            payTypeImg.src = '/static/img/unionpay.jpg';
+            payTypeTextShort.innerText = '云闪付';
+            payTypeFooterText.innerHTML = '<i class="fas fa-credit-card"></i> 银联云闪付';
+        } else {
+            payTypeImg.style.display = 'none';
+            payTypeTextShort.innerText = '扫码支付';
+        }
+    }
+    setPayTypeUI();
+
+    // 二维码生成 + 订单轮询
+    (async () => {
+        // 生成二维码
+        try {
+            if (codeType == 0) {
+                if (payType === 'alipay' && environment === 'pc') {
+                    const url = new URL(payCode);
+                    const queryParams = new URLSearchParams(url.search);
+                    const qrcode = queryParams.get('qrcode');
+                    const decodedQrcode = decodeURIComponent(qrcode);
+                    document.getElementById('qrcode').src = await getQrcode(decodedQrcode, QR);
+                } else {
+                    document.getElementById('qrcode').src = await getQrcode(payCode, QR);
+                }
+            } else {
+                document.getElementById('qrcode').src = payCode;
+            }
+        } catch(e) {
+            console.warn(e);
+            document.getElementById('qrcode').src = payCode;
+        }
+
+        // 订单状态轮询
+        let orderTimer = 0;
+        const queryOrder = async (url) => {
+            if (orderTimer) clearTimeout(orderTimer);
+            try {
+                const res = await fetch(url);
+                const jsonData = await res.json();
+                orderTimer = setTimeout(() => { queryOrder(url); }, 1200);
+                if (jsonData.state === 1) {
+                    clearTimeout(orderTimer);
+                    layer.closeAll();
+                    const timerDiv = document.getElementById('divTime');
+                    if (timerDiv) timerDiv.innerHTML = '<i class="fas fa-check-circle"></i> 订单支付成功！即将跳转...';
+                    document.getElementById('qrcode').src = '/static/img/pay_ok.png';
+                    setTimeout(() => {
+                        location.href = jsonData.return_url;
+                    }, 1500);
+                }
+                let passtime = jsonData.passtime;
+                if (passtime <= 0) {
+                    clearTimeout(orderTimer);
+                }
+                timer(passtime);
+            } catch(e) { console.error(e); }
+        };
+        queryOrder(`/getOrderState/${order}`);
+    })();
+
+    // 倒计时美化
+    function timer(passtime) {
+        let minute = 0, second = 0;
+        if (passtime > 0) {
+            minute = Math.floor(passtime / 60);
+            second = Math.floor(passtime) - (minute * 60);
+        }
+        const timerDiv = document.getElementById('divTime');
+        if (passtime <= 0) {
+            timerDiv.innerHTML = '<i class="fas fa-times-circle" style="color:#e6553e;"></i> 订单二维码已过期，请刷新页面重试';
+            timerDiv.classList.add('expired-warning');
+            timerDiv.classList.remove('timer-area');
+            timerDiv.style.background = '#ffe9e6';
+            document.getElementById('qrcode').src = '/static/img/qrcode_timeout.png';
+        } else {
+            timerDiv.classList.remove('expired-warning');
+            timerDiv.style.background = '#f1f4f9';
+            timerDiv.classList.add('timer-area');
+            timerDiv.innerHTML = `<i class="far fa-hourglass-half"></i> 二维码有效时间：<strong style="color:#2b5be3; font-size:18px;">${minute}</strong>分<strong style="color:#2b5be3; font-size:18px;">${second}</strong>秒，失效勿付`;
+        }
+    }
+
+    // 生成二维码加强清晰度，稍微调大生成尺寸
+    async function getQrcode(text, QR) {
+        const qrcodeUrl = await new Promise((resolve) => {
+            new QR({
+                text: text,
+                size: 550,        // 加大生成画布尺寸，提升二维码精度
+                colorDark: "#1e2f5e",
+                colorLight: "#ffffff",
+            }).draw().then((dataURL) => { resolve(dataURL); });
+        });
+        return qrcodeUrl;
+    }
+
+    // 客服微信复制功能 (非弹窗优雅提示)
+    const copyBtn = document.getElementById('copyWechatBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const wechatId = 'hanyi20240';
+            // 使用现代复制API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(wechatId).then(() => {
+                    layer.msg('✅ 微信号 hanyi20240 已复制，可前往微信添加', { icon: 1, time: 2000, shade: 0 });
+                }).catch(() => {
+                    fallbackCopy(wechatId);
+                });
+            } else {
+                fallbackCopy(wechatId);
+            }
+        });
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        layer.msg('📋 微信号已复制: hanyi20240', { icon: 1, time: 2000 });
+    }
+
+    // 原验证支付结果逻辑保留
+    /* <?php if ($patt == 0 && $passtime > 0) { ?> */
+    /* <?php if ($patt == 0 && $passtime > 0) { ?> */
+    const id = '<?php echo htmlentities($id);?>';
+    let retryCount = 0;
+    const MAX_RETRY = 3;
+    const reVali = (step) => {
+        if (retryCount >= MAX_RETRY) return;
+        setTimeout(() => {
+            retryCount++;
+            layer.confirm('是否已完成支付？', { icon: 3, title: '支付确认', closeBtn: 0, btn: ['已支付', '未支付'], skin: 'layui-layer-molv' },
+                (index) => {
+                    (async () => {
+                        const res = await validatePayResult(id, 1);
+                        if (res && retryCount < MAX_RETRY) { reVali(30000); }
+                    })();
+                    layer.close(index);
+                }, (index) => {
+                    if (retryCount < MAX_RETRY) { reVali(30000); }
+                    layer.close(index);
+                });
+        }, step);
+    }
+    reVali(60000);
+    /* <?php } ?> */
+
+    async function validatePayResult(id, patt) {
+        const lay = layer.load(2, { shade: [0.2, '#fff'] });
+        let data = { id: id, patt: patt };
+        const res1 = await fetch(`/validatePayResult`, { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        const rec1_info = await res1.json();
+        const info = await new Promise((resolve) => {
+            setTimeout(() => {
+                data.patt = 0;
+                fetch(`/validatePayResult`, { method: 'post', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                    .then((res2) => res2.json()).then((rec2_info) => {
+                    layer.close(lay);
+                    if (rec2_info.code == 0) {
+                        layer.msg('验证失败，稍后重新验证', { icon: 2, time: 2000 });
+                        resolve(true);
+                    } else {
+                        layer.msg(rec2_info.msg, { icon: 1, time: 2000 });
+                        resolve(false);
+                    }
+                }).catch(()=>{ layer.close(lay); resolve(false); });
+            }, 5000);
+        });
+        return info;
+    }
+    /* <?php } ?> */
+
+    // 环境警告弹窗
+    if (payType === 'wxpay' && environment === 'aliphone') {
+        layer.alert('当前为支付宝环境，请使用微信客户端扫码支付', { icon: 0, title: '提示' });
+    } else if (payType === 'alipay' && environment === 'wxphone') {
+        layer.alert('当前为微信环境，请使用支付宝客户端扫码支付', { icon: 0, title: '提示' });
+    }
+
+    // 手机浏览器唤起App按钮控制
+    const openAppWrapper = document.getElementById('openAppWrapper');
+    const openAppBtn = document.getElementById('openApp');
+    if (environment === 'phone') {
+        openAppWrapper.style.display = 'block';
+        if (payType === 'wxpay') {
+            openAppBtn.innerHTML = '<i class="fab fa-weixin"></i> 截图并打开微信支付';
+            openAppBtn.onclick = function () {
+                window.location.href = 'weixin://';
+            };
+        } else if (payType === 'alipay') {
+            openAppBtn.innerHTML = '<i class="fab fa-alipay"></i> 打开支付宝付款';
+            openAppBtn.onclick = function () {
+                if (codeType == 0) {
+                    const payUrl = encodeURIComponent(payCode);
+                    window.location.href = 'alipays://platformapi/startapp?appId=20000067&&url=' + payUrl;
+                } else {
+                    const currentUrl = encodeURIComponent(window.location.href);
+                    window.location.href = 'alipays://platformapi/startapp?appId=20000067&&url=' + currentUrl;
+                }
+            };
+        } else if (payType === 'unionpay') {
+            openAppBtn.innerHTML = '<i class="fas fa-credit-card"></i> 打开云闪付';
+            openAppBtn.onclick = function () {
+                layer.msg('请手动打开云闪付APP扫码', { icon: 1 });
+            };
+        }
+    } else if ((environment === 'wxphone' && payType === 'wxpay') || (environment === 'aliphone' && payType === 'alipay')) {
+        openAppWrapper.style.display = 'none';
+    } else {
+        openAppWrapper.style.display = 'none';
+    }
+
+    // 补齐订单显示 与金额
+    const orderSpan = document.getElementById('orderDisplay');
+    if (orderSpan && orderSpan.innerText.trim() === '') orderSpan.innerText = '<?php echo htmlentities($out_trade_no); ?>';
+    const goodsSpan = document.getElementById('goods_name_display');
+    if(goodsSpan && goodsSpan.innerText.trim() === '') goodsSpan.innerText = '<?php echo htmlentities($name); ?>';
+
+    let moneyVal = document.getElementById('moneyAmount')?.innerText;
+    if(payNoteAmount && moneyVal) payNoteAmount.innerText = moneyVal;
+
+    // 二维码出错后备
+    const qrcodeImg = document.getElementById('qrcode');
+    if(qrcodeImg) {
+        qrcodeImg.onerror = function() {
+            if(this.src !== '/static/img/qrcode_timeout.png' && this.src !== '/static/img/pay_ok.png') {
+                this.src = '/static/img/loading.gif';
+            }
+        };
+    }
+</script>
+</body>
+</html>

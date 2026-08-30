@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mpay Spring Boot</title>
+  <link rel="stylesheet" href="/app/app.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">M</div>
+      <div>
+        <strong>Mpay</strong>
+        <span>Spring Boot</span>
+      </div>
+    </div>
+    <button class="nav active" data-view="dashboard">工作台</button>
+    <button class="nav" data-view="orders">订单</button>
+    <button class="nav" data-view="accounts">收款账号</button>
+    <button class="nav" data-view="plugins">插件</button>
+    <button class="nav" data-view="settings">商户设置</button>
+    <button class="nav" data-view="docs">接口文档</button>
+  </aside>
+
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">工作台</h1>
+        <p id="pageHint">查看今日收款概览和系统状态</p>
+      </div>
+      <div class="userbar">
+        <span id="userName">未登录</span>
+        <button id="logoutBtn" class="ghost">退出</button>
+      </div>
+    </header>
+
+    <section id="loginPanel" class="login">
+      <form id="loginForm" class="panel narrow">
+        <h2>登录后台</h2>
+        <label>用户名<input name="username" value="admin" autocomplete="username"></label>
+        <label>密码<input name="password" type="password" autocomplete="current-password"></label>
+        <button type="submit">登录</button>
+        <p class="muted">首次启动会自动创建默认管理员。</p>
+      </form>
+    </section>
+
+    <section id="appPanel" class="hidden">
+      <div data-panel="dashboard" class="view active">
+        <div class="metrics">
+          <article><span>成交订单</span><strong id="metricOrders">0</strong></article>
+          <article><span>成交金额</span><strong id="metricMoney">0.00</strong></article>
+          <article><span>微信</span><strong id="metricWx">0.00</strong></article>
+          <article><span>支付宝</span><strong id="metricAli">0.00</strong></article>
+        </div>
+        <div class="panel">
+          <h2>快速创建测试订单</h2>
+          <form id="testPayForm" class="grid-form">
+            <label>支付方式<select name="type"><option value="wxpay">微信</option><option value="alipay">支付宝</option><option value="unionpay">聚合码</option></select></label>
+            <label>商品名称<input name="name" value="测试商品"></label>
+            <label>金额<input name="money" type="number" step="0.01" value="1.00"></label>
+            <label>商户订单号<input name="out_trade_no"></label>
+            <label>异步通知地址<input name="notify_url" value="https://example.com/notify"></label>
+            <label>跳转通知地址<input name="return_url" value="https://example.com/return"></label>
+            <button type="submit">生成收银台</button>
+          </form>
+        </div>
+      </div>
+
+      <div data-panel="orders" class="view">
+        <div class="panel">
+          <div class="section-head">
+            <h2>订单列表</h2>
+            <button id="cleanTimeoutBtn" class="ghost">清理超时订单</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>平台订单</th><th>商户订单</th><th>类型</th><th>金额</th><th>实收</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div data-panel="accounts" class="view">
+        <div class="split">
+          <form id="accountForm" class="panel">
+            <h2>收款账号</h2>
+            <input type="hidden" name="id">
+            <label>平台<select name="platform"><option value="manual">通用</option><option value="wxpay">微信</option><option value="alipay">支付宝</option><option value="sqbpay">收钱吧</option></select></label>
+            <label>账号<input name="account" placeholder="账号或商户标识"></label>
+            <label>密码/Token<input name="password" placeholder="可留空"></label>
+            <label>监听模式<select name="pattern"><option value="1">连续监听</option><option value="0">单次监听</option></select></label>
+            <label>状态<select name="state"><option value="1">启用</option><option value="0">停用</option></select></label>
+            <button type="submit">保存账号</button>
+          </form>
+          <form id="channelForm" class="panel">
+            <h2>收款通道</h2>
+            <input type="hidden" name="id">
+            <label>账号<select name="accountId" id="channelAccount"></select></label>
+            <label>通道编号<input name="channel" placeholder="wxpay1#1000"></label>
+            <label>二维码类型<select name="type"><option value="url">链接</option><option value="image">图片</option></select></label>
+            <label>二维码/链接<textarea name="qrcode" rows="3"></textarea></label>
+            <label>状态<select name="state"><option value="1">启用</option><option value="0">停用</option></select></label>
+            <button type="submit">保存通道</button>
+          </form>
+        </div>
+        <div class="panel">
+          <h2>账号与通道</h2>
+          <div id="accountsList" class="list"></div>
+        </div>
+      </div>
+
+      <div data-panel="plugins" class="view">
+        <div class="panel">
+          <h2>插件中心</h2>
+          <div id="pluginList" class="cards"></div>
+        </div>
+      </div>
+
+      <div data-panel="settings" class="view">
+        <form id="settingsForm" class="panel narrow">
+          <h2>商户设置</h2>
+          <label>商户 PID<input id="merchantPid" readonly></label>
+          <label>商户密钥<input id="merchantKey" readonly></label>
+          <label>昵称<input name="nickname"></label>
+          <button type="submit">保存昵称</button>
+          <button type="button" id="resetKeyBtn" class="danger">重置密钥</button>
+        </form>
+      </div>
+
+      <div data-panel="docs" class="view">
+        <div class="panel doc">
+          <h2>易支付兼容接口</h2>
+          <p>页面跳转支付：<code>GET/POST /submit</code>，API 下单：<code>POST /mapi</code>。</p>
+          <p>签名规则：参数按键名升序排列，排除 <code>sign</code>、<code>sign_type</code> 和空值，拼接 <code>k=v&...</code> 后追加商户密钥，再取 MD5。</p>
+          <pre><code>pid=1000&type=wxpay&out_trade_no=demo001&notify_url=https://example.com/notify&name=商品&money=1.00&sign=...</code></pre>
+          <p>支付成功通知字段：<code>pid, trade_no, out_trade_no, type, name, money, trade_status, sign_type, sign</code>。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app/app.js"></script>
+</body>
+</html>

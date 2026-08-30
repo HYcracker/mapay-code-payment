@@ -1,0 +1,25 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/mapay_nfkwk_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USERNAME:mapay_nfkwk_db}
+    password: ${DB_PASSWORD}
+
+server:
+  port: 8080
+
+mpay:
+  api-docs:
+    enabled: true
+  base-url: http://localhost:8080
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+knife4j:
+  enable: true

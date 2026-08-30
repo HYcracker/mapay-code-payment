@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>数据分析大屏</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/component/pear/css/pear.css" />
+    <link rel="stylesheet" href="/admin/css/other/console1.css" />
+    <style>
+        .rounded {
+            border-radius: 0.375rem;
+            width: 45px;
+            height: 45px;
+            margin-top: 7px;
+        }
+        .index-card {
+            display: flex;
+        }
+        .index-card>div {
+            text-align: center;
+        }
+        .header-tite {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-box {
+            width: 100%;
+            height: 360px;
+        }
+        .chart-box-lg {
+            width: 100%;
+            height: 400px;
+        }
+        #hourly-chart {
+            width: 100%;
+            height: 320px;
+        }
+        .analytics-container {
+            padding: 10px;
+        }
+        .stat-icon-green { background: #e8fadf; }
+        .stat-icon-blue { background: #d7f5fc; }
+        .stat-icon-orange { background: #fdf6ec; }
+        .stat-icon-red { background: #ffd0d0; }
+        .stat-icon-purple { background: #f0e6fa; }
+        .stat-icon-cyan { background: #d4f5f5; }
+    </style>
+</head>
+
+<body class="pear-container">
+    <div class="analytics-container">
+        <!-- 第一行：6 个统计卡片 -->
+        <div class="layui-row layui-col-space16">
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">今日收入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #28333E;" id="today_revenue">0</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/chart-success.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">今日订单</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #01AAED;" id="today_orders">0</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/wallet-info.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">成功率</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #36B368;" id="success_rate">0%</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/paypal.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">本月收入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #F6AD55;" id="month_revenue">0</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/cc-primary.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">总收入</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #F56C6C;" id="total_revenue">0</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/chart-success.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md2">
+                <div class="layui-card top-panel">
+                    <div class="layui-card-header">均价</div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space5 index-card">
+                            <div class="layui-col-xs8 layui-col-md8 top-panel-number" style="color: #722ED1;" id="avg_price">0</div>
+                            <div class="layui-col-xs4 layui-col-md4">
+                                <img src="/static/img/wallet-info.png" class="rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行：交易趋势 + 支付类型分布 -->
+        <div class="layui-row layui-col-space16">
+            <div class="layui-col-xs12 layui-col-sm7">
+                <div class="layui-card">
+                    <div class="layui-card-header header-tite">
+                        <span>交易趋势</span>
+                        <div class="layui-btn-group">
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary trend-btn layui-btn-active" data-days="7">近7天</button>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary trend-btn" data-days="30">近30天</button>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary trend-btn" data-days="90">近90天</button>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <div id="trend-chart" class="chart-box-lg"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm5">
+                <div class="layui-card">
+                    <div class="layui-card-header header-tite">
+                        <span>支付类型分布</span>
+                        <div class="layui-btn-group">
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary pie-btn layui-btn-active" data-days="7">近7天</button>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary pie-btn" data-days="30">近30天</button>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-primary pie-btn" data-days="90">近90天</button>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <div id="pie-chart" class="chart-box"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三行：时段分布 + 最近订单 -->
+        <div class="layui-row layui-col-space16">
+            <div class="layui-col-xs12 layui-col-sm6">
+                <div class="layui-card">
+                    <div class="layui-card-header header-tite">
+                        <span>时段分布</span>
+                        <button type="button" class="layui-btn layui-btn-xs layui-btn-primary" id="hourly-refresh">刷新</button>
+                    </div>
+                    <div class="layui-card-body">
+                        <div id="hourly-chart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6">
+                <div class="layui-card">
+                    <div class="layui-card-header header-tite">
+                        <span>最新订单</span>
+                        <button type="button" class="layui-btn layui-btn-xs layui-btn-primary" lay-on="goto-orders">全部订单</button>
+                    </div>
+                    <div class="layui-card-body neworder">
+                        <table id="orders-table" lay-filter="orders-table"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/component/layui/layui.js"></script>
+    <script src="/component/pear/pear.js"></script>
+    <script>
+        layui.use(['layer', 'element', 'count', 'table', 'util', 'jquery', 'echarts'], function () {
+            var $ = layui.jquery,
+                layer = layui.layer,
+                table = layui.table,
+                count = layui.count,
+                util = layui.util,
+                echarts = layui.echarts;
+
+            // ===== 1. 加载概览数据 =====
+            function loadOverview() {
+                fetch('/api/analytics/overview').then(function (res) { return res.json(); }).then(function (data) {
+                    count.up("today_revenue", { time: 2000, num: parseFloat(data.todayRevenue) || 0, bit: 2, regulator: 100 });
+                    count.up("today_orders", { time: 1500, num: parseInt(data.todayOrders) || 0, bit: 0, regulator: 100 });
+                    count.up("month_revenue", { time: 2000, num: parseFloat(data.monthRevenue) || 0, bit: 2, regulator: 100 });
+                    count.up("total_revenue", { time: 2500, num: parseFloat(data.totalRevenue) || 0, bit: 2, regulator: 50 });
+                    count.up("avg_price", { time: 1500, num: parseFloat(data.avgPrice) || 0, bit: 2, regulator: 100 });
+                    // 成功率用文本
+                    document.getElementById('success_rate').innerText = data.successRate || '0%';
+                });
+            }
+
+            // ===== 2. 交易趋势图 (ECharts) =====
+            var trendChart = echarts.init(document.getElementById('trend-chart'));
+
+            function loadTrend(days) {
+                fetch('/api/analytics/trend?days=' + days).then(function (res) { return res.json(); }).then(function (data) {
+                    trendChart.setOption({
+                        tooltip: { trigger: 'axis' },
+                        legend: { data: ['收入', '订单数'], top: 5 },
+                        grid: { left: 60, right: 60, top: 40, bottom: 30 },
+                        xAxis: {
+                            type: 'category',
+                            data: data.dates,
+                            axisLabel: { rotate: 30, fontSize: 11,
+                                formatter: function (v) { return v.substring(5); }
+                            }
+                        },
+                        yAxis: [
+                            { type: 'value', name: '收入(元)', axisLabel: { formatter: '{value}' } },
+                            { type: 'value', name: '订单(笔)', axisLabel: { formatter: '{value}' } }
+                        ],
+                        series: [
+                            {
+                                name: '收入', type: 'line', smooth: true,
+                                data: data.revenues,
+                                itemStyle: { color: '#2d8cf0' },
+                                areaStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: 'rgba(45,140,240,0.3)' },
+                                        { offset: 1, color: 'rgba(45,140,240,0.05)' }
+                                    ])
+                                },
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最高' }]
+                                }
+                            },
+                            {
+                                name: '订单数', type: 'bar', yAxisIndex: 1,
+                                data: data.counts,
+                                itemStyle: { color: '#36b368' },
+                                barMaxWidth: 20
+                            }
+                        ]
+                    });
+                });
+            }
+
+            // ===== 3. 支付类型分布图 (ECharts 环形图) =====
+            var pieChart = echarts.init(document.getElementById('pie-chart'));
+
+            function loadPie(days) {
+                fetch('/api/analytics/paymentTypes?days=' + days).then(function (res) { return res.json(); }).then(function (data) {
+                    var items = data.items || [];
+                    pieChart.setOption({
+                        tooltip: { trigger: 'item', formatter: '{b}: {c} 元 ({d}%)' },
+                        legend: { orient: 'vertical', right: 10, top: 20 },
+                        series: [{
+                            name: '支付类型',
+                            type: 'pie',
+                            radius: ['45%', '72%'],
+                            center: ['40%', '52%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+                            label: { show: false },
+                            emphasis: {
+                                label: { show: true, fontSize: 14, fontWeight: 'bold' }
+                            },
+                            data: items.map(function (item) {
+                                return { value: item.amount, name: item.name };
+                            }),
+                            color: ['#2d8cf0', '#36b368', '#f6ad55', '#f56c6c', '#722ed1']
+                        }]
+                    });
+                });
+            }
+
+            // ===== 4. 时段分布图 (ECharts 柱状图) =====
+            var hourlyChart = echarts.init(document.getElementById('hourly-chart'));
+
+            function loadHourly() {
+                fetch('/api/analytics/hourly?days=7').then(function (res) { return res.json(); }).then(function (data) {
+                    var maxVal = Math.max.apply(null, data.counts) || 1;
+                    hourlyChart.setOption({
+                        tooltip: { trigger: 'axis', formatter: '{b}:00 - {c} 笔' },
+                        grid: { left: 50, right: 20, top: 15, bottom: 25 },
+                        xAxis: {
+                            type: 'category',
+                            data: data.hours.map(function (h) { return h + '时'; }),
+                            axisLabel: { fontSize: 10 }
+                        },
+                        yAxis: { type: 'value', name: '订单(笔)' },
+                        series: [{
+                            type: 'bar',
+                            data: data.counts.map(function (v, i) {
+                                var hour = data.hours[i];
+                                var isPeak = (hour >= 9 && hour <= 12) || (hour >= 15 && hour <= 20);
+                                return {
+                                    value: v,
+                                    itemStyle: {
+                                        color: isPeak ? '#f6ad55' : '#2d8cf0',
+                                        borderRadius: [3, 3, 0, 0]
+                                    }
+                                };
+                            }),
+                            barMaxWidth: 16,
+                            markLine: {
+                                silent: true,
+                                data: [{ type: 'average', name: '均值', label: { fontSize: 10 } }],
+                                lineStyle: { color: '#f56c6c', type: 'dashed' }
+                            }
+                        }]
+                    });
+                });
+            }
+
+            // ===== 5. 最新订单表格 =====
+            table.render({
+                id: 'orders-table',
+                elem: '#orders-table',
+                url: '/api/analytics/recentOrders?limit=10',
+                cols: [[
+                    { title: '订单号', field: 'orderId', align: 'center', width: 180 },
+                    { title: '类型', field: 'type', align: 'center', width: 80 },
+                    { title: '金额', field: 'reallyPrice', align: 'center', width: 90 },
+                    { title: '状态', field: 'state', align: 'center', width: 80,
+                        templet: function (d) {
+                            return d.state == 1
+                                ? '<span class="layui-badge layui-bg-green">成功</span>'
+                                : '<span class="layui-badge layui-bg-orange">等待</span>';
+                        }
+                    },
+                    { title: '时间', field: 'createTime', align: 'center',
+                        templet: function (d) { return (d.createTime || '').replace('T', ' ').substring(0, 19); }
+                    }
+                ]],
+                skin: 'line',
+                page: false,
+                height: 320
+            });
+
+            // ===== 6. 事件绑定 =====
+            // 趋势图切换
+            $('.trend-btn').on('click', function () {
+                $('.trend-btn').removeClass('layui-btn-active');
+                $(this).addClass('layui-btn-active');
+                loadTrend(parseInt($(this).data('days')));
+            });
+
+            // 饼图切换
+            $('.pie-btn').on('click', function () {
+                $('.pie-btn').removeClass('layui-btn-active');
+                $(this).addClass('layui-btn-active');
+                loadPie(parseInt($(this).data('days')));
+            });
+
+            // 时段刷新
+            $('#hourly-refresh').on('click', function () { loadHourly(); });
+
+            // 跳转全部订单
+            util.on({
+                'goto-orders': function () {
+                    parent.layui.tab.addTabOnlyByElem('content',
+                        { id: 'order', title: '订单管理', url: '/Order/index', close: true }
+                    );
+                }
+            });
+
+            // 窗口 resize 时图表自适应
+            window.addEventListener('resize', function () {
+                trendChart.resize();
+                pieChart.resize();
+                hourlyChart.resize();
+            });
+
+            // ===== 7. 初始加载 =====
+            loadOverview();
+            loadTrend(7);
+            loadPie(7);
+            loadHourly();
+
+            // 定时刷新概览数据 (30秒)
+            setInterval(function () { loadOverview(); }, 30000);
+        });
+    </script>
+</body>
+
+</html>

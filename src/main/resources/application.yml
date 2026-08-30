@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: mapay-code-payment
+  profiles:
+    active: prod
+  config:
+    import:
+      - optional:classpath:application_dev.yml
+      - optional:classpath:application_test.yml
+      - optional:classpath:application_prod.yml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+server:
+  servlet:
+    session:
+      timeout: 12h
+
+mpay:
+  order-expire-seconds: 180
+  upload-dir: ./data/uploads
+  base-url: http://localhost:8080
+  doc-password: ""
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+knife4j:
+  setting:
+    language: zh_cn
