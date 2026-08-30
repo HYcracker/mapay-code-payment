@@ -34,6 +34,7 @@ mpay:
   upload-dir: ./data/uploads
   base-url: http://localhost:8080
   doc-password: ""
+  admin-init-password: ${ADMIN_INIT_PASSWORD:}
 
 springdoc:
   api-docs:

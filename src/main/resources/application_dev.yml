@@ -14,7 +14,7 @@ mpay:
   api-docs:
     enabled: true
   base-url: http://localhost:8080
-  doc-password: ${DOC_PASSWORD:admin123}
+  doc-password: ${DOC_PASSWORD:}
 
 springdoc:
   api-docs:

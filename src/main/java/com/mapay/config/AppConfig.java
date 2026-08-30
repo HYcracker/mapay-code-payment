@@ -10,6 +10,8 @@ import com.mapay.common.SignUtils;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.HexFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableAsync
 @EnableConfigurationProperties(MapayProperties.class)
 public class AppConfig implements WebMvcConfigurer {
+    private static final Logger log = LoggerFactory.getLogger(AppConfig.class);
+
     private final AuthInterceptor authInterceptor;
 
     public AppConfig(AuthInterceptor authInterceptor) {
@@ -37,18 +41,32 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Bean
     CommandLineRunner seed(UserRepository users, PayAccountRepository accounts, PayChannelRepository channels,
-                           PasswordEncoder encoder) {
+                           PasswordEncoder encoder, MapayProperties properties) {
         return args -> {
             if (users.count() == 0) {
+                String initPassword = properties.getAdminInitPassword();
+                boolean generated = initPassword == null || initPassword.isBlank();
+                if (generated) {
+                    initPassword = randomPassword();
+                }
+
                 User admin = new User();
                 admin.setPid(1000L);
                 admin.setUsername("admin");
-                admin.setPassword(encoder.encode("admin123"));
+                admin.setPassword(encoder.encode(initPassword));
                 admin.setNickname("管理员");
                 admin.setSecretKey(randomKey());
                 admin.setRole("admin");
                 admin.setState(1);
                 users.save(admin);
+
+                if (generated) {
+                    log.warn("==============================================================");
+                    log.warn("首次启动已创建默认管理员账号：admin");
+                    log.warn("初始密码（随机生成）：{}", initPassword);
+                    log.warn("请立即登录后台并修改密码。");
+                    log.warn("==============================================================");
+                }
 
                 PayAccount account = new PayAccount();
                 account.setPid(admin.getPid());
@@ -92,6 +110,12 @@ public class AppConfig implements WebMvcConfigurer {
         byte[] bytes = new byte[16];
         new SecureRandom().nextBytes(bytes);
         return SignUtils.md5(HexFormat.of().formatHex(bytes));
+    }
+
+    private static String randomPassword() {
+        byte[] bytes = new byte[12];
+        new SecureRandom().nextBytes(bytes);
+        return HexFormat.of().formatHex(bytes);
     }
 
     @Override

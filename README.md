@@ -4,7 +4,7 @@
 
 > ## ⚠️ 安全提示（公开仓库务必阅读）
 >
-> 1. **默认管理员账号为 `admin` / `admin123`**，由源码在首次启动时自动创建（见 `AppConfig.java`）。**部署前务必登录后台修改密码**，否则任何人都能登录你的后台。
+> 1. **首次启动会自动创建默认管理员账号 `admin`**（见 `AppConfig.java`）。初始密码通过 `ADMIN_INIT_PASSWORD` 环境变量或 `mpay.admin-init-password` 配置注入；**未配置时系统生成随机密码并打印到启动日志**。登录后请立即修改密码。
 > 2. **数据库密码通过环境变量注入**：`application_prod.yml` / `application_test.yml` 中的密码为 `${DB_PASSWORD}` 占位符，真实密码不要提交到仓库，运行时用环境变量提供（见下文「配置说明」）。
 > 3. 生产环境默认关闭 API 文档（Knife4j/Swagger），请勿在公网开启。
 
@@ -139,9 +139,15 @@ CREATE DATABASE mpay DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 | 项目 | 值 |
 |------|-----|
 | 用户名 | `admin` |
-| 密码 | `admin123`（**务必修改**） |
+| 初始密码 | 由 `ADMIN_INIT_PASSWORD` 环境变量指定；未设置则随机生成并打印到启动日志 |
 | PID | `1000` |
 | 角色 | `admin` |
+
+设置初始密码：
+
+```bash
+export ADMIN_INIT_PASSWORD="你的初始密码"
+```
 
 ### 配置文件
 
@@ -609,4 +615,4 @@ flowchart LR
 2. 设置 `mpay.base-url` 为实际域名
 3. 确认 `mpay.api-docs.enabled: false`（关闭 API 文档公网暴露）
 4. 配置邮件 SMTP 并发送测试邮件
-5. **修改默认管理员密码 `admin123`**
+5. **修改默认管理员密码**（首次登录后立即修改，或通过 `ADMIN_INIT_PASSWORD` 预设）

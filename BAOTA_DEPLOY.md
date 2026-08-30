@@ -389,10 +389,10 @@ https://pay.example.com/User/login
 admin
 ```
 
-默认密码：
+初始密码：
 
 ```text
-admin123
+由 ADMIN_INIT_PASSWORD 环境变量指定；未设置则随机生成并打印到启动日志
 ```
 
 登录后请立即修改密码，并重新生成商户密钥。

@@ -8,6 +8,7 @@ public class MapayProperties {
     private String uploadDir = "./data/uploads";
     private String baseUrl = "http://localhost:8080";
     private String docPassword = "";
+    private String adminInitPassword = "";
 
     public long getOrderExpireSeconds() {
         return orderExpireSeconds;
@@ -39,5 +40,13 @@ public class MapayProperties {
 
     public void setDocPassword(String docPassword) {
         this.docPassword = docPassword;
+    }
+
+    public String getAdminInitPassword() {
+        return adminInitPassword;
+    }
+
+    public void setAdminInitPassword(String adminInitPassword) {
+        this.adminInitPassword = adminInitPassword;
     }
 }
